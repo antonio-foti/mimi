@@ -17,7 +17,7 @@ No unnecessary prompts—just fast AUR package installation.
 - Bash shell
 - Root privileges
 
-## Installation (Linux)
+## Installation
 ```bash
 git clone https://github.com/antonio-foti/rua.git
 cd rua
@@ -25,7 +25,7 @@ chmod +x rua
 sudo cp rua /usr/local/bin/
 ```
 
-## Uninstallation (Linux)
+## Uninstallation
 ```bash
 sudo rm /usr/local/bin/rua
 ```
