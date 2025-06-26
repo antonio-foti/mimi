@@ -7,7 +7,7 @@ A simple yet functional AUR helper in Bash for Arch Linux.
 rua is a lightweight AUR helper that automates:
 
 - Cloning AUR packages into ~/rua/
-- Building and installing with makepkg -sic --noconfirm
+- Building and installing with makepkg -sic
 
 No unnecessary prompts—just fast AUR package installation.
 
