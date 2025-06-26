@@ -3,9 +3,10 @@
 # rua - minimal AUR helper
 # Usage: rua <aur-package-link>
 
-# Check if argument is provided
-if [ $# -eq  ]; then
+# Check if argument is provided and looks like an AUR URL
+if [ $# -eq 0 ] || ! [[ "$1" =~ ^https?://aur.archlinux.org/.*\.git$ ]]; then
     echo "Usage: rua <aur-package-link>"
+    echo "Example: rua https://aur.archlinux.org/package-name.git"
     exit 1
 fi
 
@@ -22,7 +23,7 @@ package_name=$(basename "$1" .git)
 # Clone the AUR repository into ~/rua/
 echo "Cloning into $RUADIR/$package_name..."
 git clone "$1" "$RUADIR/$package_name" || {
-    echo "Failed to clone repository"
+    echo "Failed to clone repository (invalid URL or no internet?)"
     exit 1
 }
 
@@ -32,16 +33,16 @@ cd "$RUADIR/$package_name" || {
     exit 1
 }
 
-# Build and install with makepkg
-# -s: install dependencies using sudo
-# -i: install the package
-# -c: clean up after build
-# --noconfirm: don't ask for confirmation
+# Build and install with makepkg (user runs sudo manually)
+# -s: Install dependencies
+# -i: Install the package
+# -c: Clean up after build
+# --noconfirm: Skip prompts
 echo "Building and installing $package_name..."
-sudo -S makepkg -sic --noconfirm || {
-    echo "Failed to build/install package"
+makepkg -sic || {
+    echo "Failed to build/install package (check PKGBUILD?)"
+    echo "Note: Run 'makepkg -si' manually if dependencies need sudo."
     exit 1
 }
 
 echo "Successfully installed $package_name from $RUADIR/$package_name"
-
