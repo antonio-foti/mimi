@@ -48,9 +48,7 @@ All AUR packages are stored in:
 
 ## Features
 - Auto-cloning into ~/rua/
-- Automatic dependency resolution (makepkg -s)
 - One-step install & cleanup (makepkg -sic)
-- No confirmation prompts (--noconfirm)
 - Not a full AUR manager (no updates/search)
 
 ## Contribution
