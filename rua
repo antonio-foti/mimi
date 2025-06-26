@@ -13,36 +13,53 @@ fi
 # Create ~/rua directory if it doesn't exist
 RUADIR="$HOME/rua"
 mkdir -p "$RUADIR" || {
-    echo "Failed to create directory '$RUADIR'"
+    echo "Error: Failed to create directory '$RUADIR'"
     exit 1
 }
 
 # Extract package name from the URL
 package_name=$(basename "$1" .git)
+target_dir="$RUADIR/$package_name"
 
-# Clone the AUR repository into ~/rua/
-echo "Cloning into $RUADIR/$package_name..."
-git clone "$1" "$RUADIR/$package_name" || {
-    echo "Failed to clone repository (invalid URL or no internet?)"
+# Check if directory exists and is not empty
+if [ -d "$target_dir" ]; then
+    if [ "$(ls -A "$target_dir")" ]; then
+        echo "Warning: Directory '$target_dir' already exists and is not empty."
+        read -p "Delete and re-clone? [y/N] " choice
+        case "$choice" in
+            y|Y)
+                echo "Removing old directory..."
+                rm -rf "$target_dir"
+                ;;
+            *)
+                echo "Aborting."
+                exit 1
+                ;;
+        esac
+    else
+        echo "Warning: Directory '$target_dir' exists but is empty. Reusing it."
+    fi
+fi
+
+# Clone the AUR repository
+echo "Cloning into $target_dir..."
+git clone "$1" "$target_dir" || {
+    echo "Error: Failed to clone repository (invalid URL, no internet, or repo moved?)"
     exit 1
 }
 
 # Enter the directory
-cd "$RUADIR/$package_name" || {
-    echo "Failed to enter directory $RUADIR/$package_name"
+cd "$target_dir" || {
+    echo "Error: Failed to enter directory $target_dir"
     exit 1
 }
 
-# Build and install with makepkg (user runs sudo manually)
-# -s: Install dependencies
-# -i: Install the package
-# -c: Clean up after build
-# --noconfirm: Skip prompts
+# Build and install with makepkg
 echo "Building and installing $package_name..."
 makepkg -sic || {
-    echo "Failed to build/install package (check PKGBUILD?)"
-    echo "Note: Run 'makepkg -si' manually if dependencies need sudo."
+    echo "Error: Failed to build/install package (check PKGBUILD?)"
+    echo "You can try running manually: cd $target_dir && makepkg -sic"
     exit 1
 }
 
-echo "Successfully installed $package_name from $RUADIR/$package_name"
+echo "Successfully installed $package_name from $target_dir"
