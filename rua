@@ -38,7 +38,7 @@ cd "$RUADIR/$package_name" || {
 # -c: clean up after build
 # --noconfirm: don't ask for confirmation
 echo "Building and installing $package_name..."
-sudo -S makepkg -sic || {
+sudo -S makepkg -sic --noconfirm || {
     echo "Failed to build/install package"
     exit 1
 }
