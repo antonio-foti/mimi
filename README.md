@@ -2,6 +2,8 @@
 
 A simple yet functional AUR helper in Bash for Arch Linux.
 
+![usage](./usage.gif)
+
 ## Description
 
 rua is a lightweight AUR helper that automates:
