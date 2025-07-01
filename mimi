@@ -1,0 +1,130 @@
+#!/bin/bash
+
+# mimi - enhanced AUR helper
+# Usage: 
+#   mimi <aur-package-link>   - install package
+#   mimi list                - list installed packages
+#   mimi remove <package>    - uninstall package and remove directory
+
+MIMIDIR="$HOME/mimi"
+mkdir -p "$MIMIDIR" || {
+    echo "Error: Failed to create directory '$MIMIDIR'"
+    exit 1
+}
+
+# Function to list installed packages
+list_packages() {
+    if [ -z "$(ls -A "$MIMIDIR")" ]; then
+        echo "No packages installed via mimi."
+        return
+    fi
+    
+    echo "Packages installed via mimi:"
+    for dir in "$MIMIDIR"/*; do
+        local pkg=$(basename "$dir")
+        if pacman -Qi "$pkg" &>/dev/null; then
+            echo "  $pkg (installed)"
+        else
+            echo "  $pkg (not installed)"
+        fi
+    done
+}
+
+# Function to remove a package and its directory
+remove_package() {
+    local package_name=$1
+    local target_dir="$MIMIDIR/$package_name"
+    
+    if [ ! -d "$target_dir" ]; then
+        echo "Error: Package '$package_name' not found in mimi directory"
+        exit 1
+    fi
+    
+    # Check if package is installed
+    if pacman -Qi "$package_name" &>/dev/null; then
+        echo "Uninstalling $package_name..."
+        sudo pacman -Rsc --noconfirm "$package_name" || {
+            echo "Error: Failed to uninstall package"
+            exit 1
+        }
+    else
+        echo "Note: $package_name is not installed"
+    fi
+    
+    echo "Removing directory $target_dir..."
+    rm -rf "$target_dir" && echo "Successfully removed $package_name"
+}
+
+# Handle list command
+if [ "$1" = "list" ]; then
+    list_packages
+    exit 0
+fi
+
+# Handle remove command
+if [ "$1" = "remove" ] || [ "$1" = "delete" ]; then
+    if [ -z "$2" ]; then
+        echo "Usage: mimi remove <package-name>"
+        exit 1
+    fi
+    remove_package "$2"
+    exit 0
+fi
+
+# Original installation functionality
+if [ $# -eq 0 ] || ! [[ "$1" =~ ^https?://aur.archlinux.org/.*\.git$ ]]; then
+    echo "Usage:"
+    echo "  mimi <aur-package-link>   - install package"
+    echo "  mimi list                - list installed packages"
+    echo "  mimi remove <package>    - uninstall package and remove directory"
+    echo ""
+    echo "Example: mimi https://aur.archlinux.org/package-name.git"
+    exit 1
+fi
+
+# Extract package name from the URL
+package_name=$(basename "$1" .git)
+target_dir="$MIMIDIR/$package_name"
+
+# Handle already existing directory
+if [ -d "$target_dir" ]; then
+    if [ "$(ls -A "$target_dir")" ]; then
+        echo "Warning: Directory '$target_dir' already exists and is not empty."
+        read -p "Delete and re-clone? [y/N] " choice
+        case "$choice" in
+            y|Y)
+                echo "Removing old directory..."
+                rm -rf "$target_dir"
+                ;;
+            *)
+                echo "Aborting."
+                exit 1
+                ;;
+        esac
+    else
+        echo "Warning: Directory '$target_dir' exists but is empty. Reusing it."
+    fi
+fi
+
+# Clone the AUR repository
+echo "Cloning into $target_dir..."
+git clone "$1" "$target_dir" || {
+    echo "Error: Failed to clone repository (invalid URL, no internet, or repo moved?)"
+    exit 1
+}
+
+# Enter the directory
+cd "$target_dir" || {
+    echo "Error: Failed to enter directory $target_dir"
+    exit 1
+}
+
+# Build and install with makepkg
+echo "Building and installing $package_name..."
+makepkg -sic || {
+    echo "Error: Failed to build/install package (check PKGBUILD?)"
+    echo "You can try running manually: cd $target_dir && makepkg -sic"
+    exit 1
+}
+
+echo "Successfully installed $package_name from $target_dir"
