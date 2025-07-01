@@ -1,63 +1,80 @@
-# Rua - Minimal AUR Helper
+# Mimi - Enhanced AUR Helper
 
-A simple yet functional AUR helper in Bash for Arch Linux.
+A powerful yet simple AUR helper in Bash for Arch Linux with package management capabilities.
 
 ![usage](./usage.gif)
 
 ## Description
 
-rua is a lightweight AUR helper that automates:
+`mimi` is an enhanced version of `rua` (Old Version) that provides:
 
-- Cloning AUR packages into ~/rua/
-- Building and installing with makepkg -sic
+- Package installation from AUR
+- Package listing and status checking
+- Clean removal of packages including source directories
 
-No unnecessary prompts—just fast AUR package installation.
+## Features
+
+- List all installed AUR packages (`mimi list`)
+- Remove packages with source directories (`mimi remove pkg1 pkg2...`)
+- Fast installation with makepkg (`-sic` flags)
+- Organized package storage in `~/.mimi/`
+- Automatic directory management
+- Multiple package operations support
 
 ## Requirements
 
 - Arch Linux or Arch-based distribution
 - Bash shell
-- Root privileges
+- sudo privileges
+- git, makepkg, pacman
 
 ## Installation
-```bash
-git clone https://github.com/antonio-foti/rua.git
-cd rua
-chmod +x rua
-sudo cp rua /usr/local/bin/
-```
 
-## Uninstallation
 ```bash
-sudo rm /usr/local/bin/rua
+git clone https://github.com/antonio-foti/mimi.git
+cd mimi
+chmod +x mimi
+sudo cp mimi /usr/local/bin/
 ```
 
 ## Usage
+
+### Install a package:
 ```bash
-rua <aur-package-url>
+mimi https://aur.archlinux.org/package-name.git
+```
+
+### List installed packages:
+```bash
+mimi list
+```
+
+### Remove package(s):
+```bash
+mimi remove package1 package2
 ```
 
 ## File Structure
 
-All AUR packages are stored in:
-
-```bash
-~/rua/
-   ├── package1/  
-   ├── package2/  
+Packages are stored in hidden directory:
+```
+~/.mimi/
+   ├── package1/
+   ├── package2/
    └── ...
 ```
 
-## Features
-- Auto-cloning into ~/rua/
-- One-step install & cleanup (makepkg -sic)
-- Not a full AUR manager (no updates/search)
+## Why mimi?
+
+- leaner directory structure (hidden .mimi)
+- Full package management (install/list/remove)
+- Maintains original simplicity
+
 
 ## Contribution
-
-Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
+Contributions welcome! Open an issue or submit a PR.
 
 ## License
+MIT License
 
-MIT License - Free to use and modify
-Created by Antonio Foti
+Maintained by Antonio Foti
