@@ -37,6 +37,11 @@ chmod +x mimi
 sudo cp mimi /usr/local/bin/
 ```
 
+## Uninstallation
+```bash
+sudo rm /usr/local/bin/mimi
+```
+
 ## Usage
 
 ### Install a package:
