@@ -4,9 +4,9 @@
 # Usage: 
 #   mimi <aur-package-link>   - install package
 #   mimi list                - list installed packages
-#   mimi remove <package>    - uninstall package and remove directory
+#   mimi remove <package...> - uninstall package(s) and remove directory(ies)
 
-MIMIDIR="$HOME/mimi"
+MIMIDIR="$HOME/.mimi"
 mkdir -p "$MIMIDIR" || {
     echo "Error: Failed to create directory '$MIMIDIR'"
     exit 1
@@ -30,29 +30,52 @@ list_packages() {
     done
 }
 
-# Function to remove a package and its directory
+# Function to remove one or more packages and their directories
 remove_package() {
-    local package_name=$1
-    local target_dir="$MIMIDIR/$package_name"
-    
-    if [ ! -d "$target_dir" ]; then
-        echo "Error: Package '$package_name' not found in mimi directory"
-        exit 1
-    fi
-    
-    # Check if package is installed
-    if pacman -Qi "$package_name" &>/dev/null; then
-        echo "Uninstalling $package_name..."
-        sudo pacman -Rsc --noconfirm "$package_name" || {
-            echo "Error: Failed to uninstall package"
+    local packages=("$@")
+    local to_uninstall=()
+    local to_remove=()
+
+    # Check each package
+    for package_name in "${packages[@]}"; do
+        local target_dir="$MIMIDIR/$package_name"
+        
+        if [ ! -d "$target_dir" ]; then
+            echo "Warning: Package '$package_name' not found in mimi directory"
+            continue
+        fi
+        
+        # Add to uninstall list if installed
+        if pacman -Qi "$package_name" &>/dev/null; then
+            to_uninstall+=("$package_name")
+        else
+            echo "Note: $package_name is not installed"
+        fi
+        
+        # Always add to remove list if directory exists
+        to_remove+=("$target_dir")
+    done
+
+    # Uninstall all packages at once
+    if [ ${#to_uninstall[@]} -gt 0 ]; then
+        echo "Uninstalling packages: ${to_uninstall[*]}..."
+        sudo pacman -Rsc --noconfirm "${to_uninstall[@]}" || {
+            echo "Error: Failed to uninstall packages"
             exit 1
         }
-    else
-        echo "Note: $package_name is not installed"
     fi
-    
-    echo "Removing directory $target_dir..."
-    rm -rf "$target_dir" && echo "Successfully removed $package_name"
+
+    # Remove all directories
+    if [ ${#to_remove[@]} -gt 0 ]; then
+        echo "Removing directories:"
+        for dir in "${to_remove[@]}"; do
+            echo "  $dir"
+            rm -rf "$dir"
+        done
+        echo "Successfully removed ${#to_remove[@]} package(s)"
+    else
+        echo "No packages were removed"
+    fi
 }
 
 # Handle list command
@@ -63,11 +86,12 @@ fi
 
 # Handle remove command
 if [ "$1" = "remove" ] || [ "$1" = "delete" ]; then
-    if [ -z "$2" ]; then
-        echo "Usage: mimi remove <package-name>"
+    shift  # remove 'remove' from arguments
+    if [ $# -eq 0 ]; then
+        echo "Usage: mimi remove <package-name...>"
         exit 1
     fi
-    remove_package "$2"
+    remove_package "$@"
     exit 0
 fi
 
@@ -76,7 +100,7 @@ if [ $# -eq 0 ] || ! [[ "$1" =~ ^https?://aur.archlinux.org/.*\.git$ ]]; then
     echo "Usage:"
     echo "  mimi <aur-package-link>   - install package"
     echo "  mimi list                - list installed packages"
-    echo "  mimi remove <package>    - uninstall package and remove directory"
+    echo "  mimi remove <package...> - uninstall package(s) and remove directory(ies)"
     echo ""
     echo "Example: mimi https://aur.archlinux.org/package-name.git"
     exit 1
