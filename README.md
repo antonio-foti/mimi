@@ -2,8 +2,6 @@
 
 A powerful yet simple AUR helper in Bash for Arch Linux with package management capabilities.
 
-![usage](./usage.gif)
-
 ## Description
 
 `mimi` is an enhanced version of `rua` (Old Version) that provides:
