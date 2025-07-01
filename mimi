@@ -2,9 +2,9 @@
 
 # mimi - enhanced AUR helper
 # Usage: 
-#   mimi <aur-package-link>   - install package
-#   mimi list                - list installed packages
-#   mimi remove <package...> - uninstall package(s) and remove directory(ies)
+#   mimi <aur-package-link>            - install package
+#   mimi list                          - list installed packages
+#   mimi remove <package1> <package2>  - uninstall package(s) and remove directory(ies)
 
 MIMIDIR="$HOME/.mimi"
 mkdir -p "$MIMIDIR" || {
@@ -98,9 +98,9 @@ fi
 # Original installation functionality
 if [ $# -eq 0 ] || ! [[ "$1" =~ ^https?://aur.archlinux.org/.*\.git$ ]]; then
     echo "Usage:"
-    echo "  mimi <aur-package-link>   - install package"
-    echo "  mimi list                - list installed packages"
-    echo "  mimi remove <package...> - uninstall package(s) and remove directory(ies)"
+    echo "  mimi <aur-package-link>            - install package"
+    echo "  mimi list                          - list installed packages"
+    echo "  mimi remove <package1> <package2>  - uninstall package(s) and remove directory(ies)"
     echo ""
     echo "Example: mimi https://aur.archlinux.org/package-name.git"
     exit 1
