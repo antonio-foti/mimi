@@ -1,4 +1,4 @@
-# Mimi - Enhanced AUR Helper
+# Mimi - Minimal AUR Helper
 
 A powerful yet simple AUR helper in Bash for Arch Linux with package management capabilities.
 
