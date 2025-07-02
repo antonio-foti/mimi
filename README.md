@@ -1,12 +1,10 @@
 # Mimi - Minimal AUR Helper
 
-A powerful yet simple AUR helper in Bash for Arch Linux with package management capabilities.
+A yet minimal AUR helper in Bash for Arch Linux with package management capabilities.
 
 ![usage](./usage.gif)
 
 ## Description
-
-`mimi` is an enhanced version of `rua` (Old Version) that provides:
 
 - Package installation from AUR
 - Package listing and status checking
